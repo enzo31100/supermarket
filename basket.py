@@ -2,12 +2,10 @@
 # -*- coding: utf-8 -*-
 
 
-from stock import Stock
-from fruit import Fruit
-from legume import Legume
+import market
 
 
-class Panier:
+class Basket:
     def __init__(self):
         self.items = {}
 
@@ -20,17 +18,19 @@ class Panier:
             self.items[item]['quantity'] += quantity
 
     def display(self):
-        print("\nPanier:")
+        print("\nPanier :")
         total = 0
         for item, data in self.items.items():
-            stock_item = inventory[item]
+            stock_item = market.inventory[item]
             if data['is_kg']:
                 price = stock_item.price_per_kg
+                unit = "kg"
             else:
                 price = stock_item.price_per_piece
+                unit = "pièce(s)"
 
             cost = data['quantity'] * price
             total += cost
-            print(f"{item}: {data['quantity']} {'kg' if data['is_kg'] else 'pièce'} - {cost:.2f} €")
+            print(f"{item}: {data['quantity']} {unit} - {cost:.2f} €")
 
         print(f"Total: {total:.2f} €")
