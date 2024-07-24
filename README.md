@@ -6,7 +6,9 @@
 
 Le tableau suivant recense le stock et les différents prix début janvier 2024.
 
-[img]
+
+![image](https://github.com/user-attachments/assets/a6ffd2dc-9e5c-4cc7-8381-1872f2643dae)
+
 
 Le programme a pour but de permettre aux clients de la journée de faire leurs achats en choisissant 
 les fruits et légumes souhaités (et leur quantité).
