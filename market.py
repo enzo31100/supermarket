@@ -18,6 +18,7 @@ Usage:
 from fruit import Fruit
 from vegetable import Vegetable
 import basket
+import client
 
 # Initial stock data with French names
 inventory = {
@@ -43,6 +44,8 @@ inventory = {
     'Salsifis': Vegetable('Salsifis', 2.50, 3),
 }
 
+clients_list = []
+
 
 def main():
     """
@@ -50,61 +53,92 @@ def main():
     Provides a menu for clients to add fruits and vegetables to their basket,
     view their basket, and exit the program.
     """
-    basket_client = basket.Basket()
 
     while True:
-        print("\n1. Ajouter des fruits")
-        print("2. Ajouter des légumes")
-        print("3. Voir le panier")
-        print("4. Quitter")
+        print("\n1. Arrivée d'un client")
+        print("2. Bilan de la journée")
+        print("3. Quitter")
         choice = input("Votre choix : ")
 
-        if choice == '1':
-            print("\nFruits disponibles :")
-            print("Entrez '0' pour retour")
-            fruits = [item for item in inventory.keys() if isinstance(inventory[item], Fruit)]
-            for idx, fruit in enumerate(fruits, 1):
-                print(f"{idx}. {fruit} ({inventory[fruit].quantity_kg} kg)")
+        if choice == "1":
+            first_name = input("Prénom du client : ")
+            last_name = input("Nom du client : ")
+            current_client = client.Client(first_name, last_name)
+            clients_list.append(current_client)
 
-            fruit_choice = input("Choisissez un fruit (numéro) : ")
-            if fruit_choice == "0":
-                continue
-            elif fruit_choice.isdigit() and 1 <= int(fruit_choice) <= len(fruits):
-                selected_fruit = fruits[int(fruit_choice) - 1]
-                quantity = float(input("Quantité (kg) : "))
-                if inventory[selected_fruit].is_available(kg=quantity):
-                    basket_client.add_item(selected_fruit, quantity)
-                    inventory[selected_fruit].update_stock(kg=quantity)
-                else:
-                    print("Quantité non disponible.")
-            else:
-                print("Choix non valide.")
+            while True:
+                print("\n1. Ajouter des fruits")
+                print("2. Ajouter des légumes")
+                print("3. Voir le panier")
+                print("4. Quitter")
+                choice = input("Votre choix : ")
 
-        elif choice == '2':
-            print("\nLégumes disponibles :")
-            print("Entrez '0' pour retour")
-            vegetables = [item for item in inventory.keys() if isinstance(inventory[item], Vegetable)]
-            for idx, vegetable in enumerate(vegetables, 1):
-                print(f"{idx}. {vegetable} ({inventory[vegetable].quantity_piece} pièce(s))")
+                if choice == '1':
+                    print("\nFruits disponibles :")
+                    print("Entrez '0' pour retour")
+                    fruits = [item for item in inventory.keys() if isinstance(inventory[item], Fruit)]
+                    for idx, fruit in enumerate(fruits, 1):
+                        print(f"{idx}. {fruit} ({inventory[fruit].quantity_kg} kg)")
 
-            vegetable_choice = input("Choisissez un légume (numéro) : ")
-            if vegetable_choice == "0":
-                continue
-            elif vegetable_choice.isdigit() and 1 <= int(vegetable_choice) <= len(vegetables):
-                selected_vegetable = vegetables[int(vegetable_choice) - 1]
-                quantity = int(input("Quantité (pièce) : "))
-                if inventory[selected_vegetable].is_available(piece=quantity):
-                    basket_client.add_item(selected_vegetable, quantity, is_kg=False)
-                    inventory[selected_vegetable].update_stock(piece=quantity)
-                else:
-                    print("Quantité non disponible.")
-            else:
-                print("Choix non valide.")
+                    fruit_choice = input("Choisissez un fruit (numéro) : ")
+                    if fruit_choice == "0":
+                        continue
+                    elif fruit_choice.isdigit() and 1 <= int(fruit_choice) <= len(fruits):
+                        selected_fruit = fruits[int(fruit_choice) - 1]
+                        quantity = float(input("Quantité (kg) : "))
+                        if inventory[selected_fruit].is_available(kg=quantity):
+                            current_client.add_item(selected_fruit, quantity)
+                            inventory[selected_fruit].update_stock(kg=quantity)
+                        else:
+                            print("Quantité non disponible.")
+                    else:
+                        print("Choix non valide.")
 
-        elif choice == '3':
-            basket_client.display()
+                elif choice == '2':
+                    print("\nLégumes disponibles :")
+                    print("Entrez '0' pour retour")
+                    vegetables = [item for item in inventory.keys() if isinstance(inventory[item], Vegetable)]
+                    for idx, vegetable in enumerate(vegetables, 1):
+                        print(f"{idx}. {vegetable} ({inventory[vegetable].quantity_piece} pièce(s))")
 
-        elif choice == '4':
+                    vegetable_choice = input("Choisissez un légume (numéro) : ")
+                    if vegetable_choice == "0":
+                        continue
+                    elif vegetable_choice.isdigit() and 1 <= int(vegetable_choice) <= len(vegetables):
+                        selected_vegetable = vegetables[int(vegetable_choice) - 1]
+                        quantity = int(input("Quantité (pièce) : "))
+                        if inventory[selected_vegetable].is_available(piece=quantity):
+                            current_client.add_item(selected_vegetable, quantity, is_kg=False)
+                            inventory[selected_vegetable].update_stock(piece=quantity)
+                        else:
+                            print("Quantité non disponible.")
+                    else:
+                        print("Choix non valide.")
+
+                elif choice == '3':
+                    current_client.print_receipt()
+
+                elif choice == '4':
+                    print("Au revoir !")
+                    break
+
+        elif choice == "2":
+            print("\nBilan de la journée :")
+            total_day = 0
+            for client in clients_list:
+                print(f"\nClient : {client.name}")
+                client.print_receipt()
+                total_day += client.get_total()
+
+            print(f"\nTotal des ventes de la journée : {total_day:.2f} €")
+            print("\nStock restant :")
+            for product, stock in inventory.products():
+                if isinstance(stock, Fruit):
+                    print(f"{product} : {stock.quantity_kg}")
+                elif isinstance(stock, Vegetable):
+                    print(f"{product} : {stock.quantity_piece}")
+
+        elif choice == "3":
             print("Au revoir !")
             break
 
