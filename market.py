@@ -13,12 +13,18 @@ Usage:
     Run this script to start the stock and basket management program. Follow the prompts to
     choose fruits or vegetables, enter the desired quantities, and display the basket. The
     program automatically updates the stock based on purchases made.
+
+Dependencies:
+    - fruit
+    - vegetable
+    - basket
+    - client
 """
 
 from fruit import Fruit
 from vegetable import Vegetable
 import basket
-import client
+import client as client_module  # Renommer l'importation pour éviter le conflit
 
 # Initial stock data with French names
 inventory = {
@@ -44,7 +50,7 @@ inventory = {
     'Salsifis': Vegetable('Salsifis', 2.50, 3),
 }
 
-clients_list = []
+clients = []
 
 
 def main():
@@ -53,24 +59,23 @@ def main():
     Provides a menu for clients to add fruits and vegetables to their basket,
     view their basket, and exit the program.
     """
-
     while True:
         print("\n1. Arrivée d'un client")
-        print("2. Bilan de la journée")
+        print("2. Éditer le bilan de la journée")
         print("3. Quitter")
         choice = input("Votre choix : ")
 
-        if choice == "1":
+        if choice == '1':
             first_name = input("Prénom du client : ")
             last_name = input("Nom du client : ")
-            current_client = client.Client(first_name, last_name)
-            clients_list.append(current_client)
+            current_client = client_module.Client(first_name, last_name)  # Utiliser le nom renommer
+            clients.append(current_client)
 
             while True:
                 print("\n1. Ajouter des fruits")
                 print("2. Ajouter des légumes")
                 print("3. Voir le panier")
-                print("4. Quitter")
+                print("4. Terminer les achats")
                 choice = input("Votre choix : ")
 
                 if choice == '1':
@@ -116,29 +121,28 @@ def main():
                         print("Choix non valide.")
 
                 elif choice == '3':
-                    current_client.print_receipt()
+                    current_client.basket.display()
 
                 elif choice == '4':
-                    print("Au revoir !")
+                    current_client.print_receipt(inventory)
                     break
 
-        elif choice == "2":
+        elif choice == '2':
             print("\nBilan de la journée :")
-            total_day = 0
-            for client in clients_list:
-                print(f"\nClient : {client.name}")
-                client.print_receipt()
-                total_day += client.get_total()
-
-            print(f"\nTotal des ventes de la journée : {total_day:.2f} €")
+            total_revenue = 0
+            for client in clients:
+                print(f"Client : {client.first_name} {client.last_name}, Total Achats : "
+                      f"{client.get_total(inventory):.2f} €")
+                total_revenue += client.get_total(inventory)
+            print(f"\nTotal des ventes : {total_revenue:.2f} €")
             print("\nStock restant :")
-            for product, stock in inventory.products():
-                if isinstance(stock, Fruit):
-                    print(f"{product} : {stock.quantity_kg}")
-                elif isinstance(stock, Vegetable):
-                    print(f"{product} : {stock.quantity_piece}")
+            for item in inventory:
+                if isinstance(inventory[item], Fruit):
+                    print(f"{item}: {inventory[item].quantity_kg} kg")
+                elif isinstance(inventory[item], Vegetable):
+                    print(f"{item}: {inventory[item].quantity_piece} pièce(s)")
 
-        elif choice == "3":
+        elif choice == '3':
             print("Au revoir !")
             break
 

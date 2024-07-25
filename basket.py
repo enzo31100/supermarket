@@ -1,36 +1,33 @@
-#!/usr/bin/env python
-# -*- coding: utf-8 -*-
-
-
-import market
-
-
 class Basket:
     def __init__(self):
         self.items = {}
 
     def add_item(self, item, quantity, is_kg=True):
-        if item not in self.items:
-            self.items[item] = {'quantity': 0, 'is_kg': is_kg}
-        if is_kg:
+        if item in self.items:
             self.items[item]['quantity'] += quantity
         else:
-            self.items[item]['quantity'] += quantity
+            self.items[item] = {'quantity': quantity, 'is_kg': is_kg}
 
     def display(self):
-        print("\nPanier :")
-        total = 0
-        for item, data in self.items.items():
-            stock_item = market.inventory[item]
-            if data['is_kg']:
-                price = stock_item.price_per_kg
-                unit = "kg"
+        if not self.items:
+            print("Le panier est vide.")
+        else:
+            print("Panier :")
+            for item, details in self.items.items():
+                unit = "kg" if details['is_kg'] else "pièce(s)"
+                print(f"{item}: {details['quantity']} {unit}")
+
+    def calculate_total(self, inventory):
+        """
+        Calculate the total cost of the items in the basket based on the inventory prices.
+
+        :param inventory: Dictionary containing the stock of items.
+        :return: Total cost.
+        """
+        total = 0.0
+        for item, details in self.items.items():
+            if details['is_kg']:
+                total += inventory[item].price_per_kg * details['quantity']
             else:
-                price = stock_item.price_per_piece
-                unit = "pièce(s)"
-
-            cost = data['quantity'] * price
-            total += cost
-            print(f"{item}: {data['quantity']} {unit} - {cost:.2f} €")
-
-        print(f"Total: {total:.2f} €")
+                total += inventory[item].price_per_piece * details['quantity']
+        return total
